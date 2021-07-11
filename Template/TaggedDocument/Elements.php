@@ -55,5 +55,10 @@
 
         class Element extends Node implements NodeInterface{
             protected mixed $attrs = [];
+
+            public function __construct()
+            {
+                
+            }
         }
 ?>
