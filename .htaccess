@@ -1,0 +1,57 @@
+#RewriteCond %{HTTP_Host} 127.0.0.1
+#RewriteRule ^%{REQUEST_SCHEME}://%{HTTP_Host}(/[^/]*?)(/.*?)$ %{REQUEST_SCHEME}://%{HTTP_Host}$1/?url=$2
+#RewriteCond %{HTTP_Host}
+#RewriteCond %{REDIRECT_URL} !(.*)
+
+SetEnv DIGITAL_DEVELOPMENT_ENV 127.0.0.1
+SetEnvIf REQUEST_URI ^(/[^/]*?)((/.*?)?)$ DIGITAL_BASE=$1 DIGITAL_QUERY=$2
+SetEnvIf REDIRECT_URL ^[/]$ DIGITAL_BASE=/ DIGITAL_QUERY=/
+SetEnvIf DIGITAL_BASE ^/(.*?)$ DIGITAL_BASE_NAME=$1
+SetEnvIfExpr "req('HTTP_HOST') != req('DIGITAL_DEVELOPMENT_ENV')" DIGITAL_BASE=/ DIGITAL_QUERY=REQUEST_URI
+
+RewriteEngine On
+
+#Mange file data
+RewriteCond %{HTTP_HOST} 127.0.0.1
+RewriteCond %{ENV:DIGITAL_QUERY} ![/]$
+RewriteCond %{ENV:DIGITAL_QUERY} !/.+\.php$
+RewriteCond %{ENV:DIGITAL_QUERY} !/.+\.phps$
+RewriteCond %{ENV:DIGITAL_QUERY} !^/View/ViewLauncher.php
+RewriteRule ^.*$ /%{ENV:DIGITAL_BASE_NAME}/View/ViewLauncher.php [L]
+
+#Manage page on Developper Mode
+#using ${DEVELOPMENT_ENV}
+RewriteCond %{HTTP_HOST} 127.0.0.1
+RewriteCond %{ENV:DIGITAL_QUERY} !^/View/
+RewriteCond %{ENV:DIGITAL_QUERY} !^/App/AppLauncher.php$
+RewriteRule ^.*$ /%{ENV:DIGITAL_BASE_NAME}/App/AppLauncher.php [L]
+
+RewriteCond "%{HTTP_HOST}" "!=127.0.0.1"
+RewriteCond %{ENV:DIGITAL_QUERY} ![/]$
+RewriteCond %{ENV:DIGITAL_QUERY} !/.+\.php$
+RewriteCond %{ENV:DIGITAL_QUERY} !/.+\.phps$
+RewriteCond %{ENV:DIGITAL_QUERY} !^/View/ViewLauncher.php
+RewriteRule ^.*$ /View/ViewLauncher.php [L]
+
+#Manage page deployed on internet
+RewriteCond "%{HTTP_HOST}" "!=127.0.0.1"
+RewriteCond %{ENV:DIGITAL_QUERY} !^/App/AppLauncher.php
+RewriteRule ^.*$ /App/AppLauncher.php [L]
+
+#RewriteRule "^%{ENV:DIGITAL_BASE}(/.+\.php)?$" "/%{ENV:DIGITAL_BASE_NAME}/App/"
+#RewriteRule index.php$ /%{ENV:DIGITAL_BASE_NAME}/App/
+#RewriteRule (.*?) %{REQUEST_SCHEME}://%{HTTP_HOST}%{ENV:DIGITAL_BASE}/log.exe [L,R]
+#ErrorDocument 404 /App/index.php
+
+#RewriteBase /
+#RewriteCond %{DIGITAL_QUERY} ^/App/$
+#RewriteRule ^(.*?)$ /App/?id=1 [L]
+
+#RewriteCond %{HTTP_HOST} 127.0.0.1
+#RewriteCond %{ENV:DIGITAL_QUERY} !^[/]$
+#RewriteRule ^(.*)$ %{REQUEST_SCHEME}://%{HTTP_HOST}%{ENV:DIGITAL_BASE} [L,R]
+
+#RewriteCond "%{HTTP_HOST}" "!=127.0.0.1"
+#RewriteRule ^(.*)$ %{REQUEST_SCHEME}://%{HTTP_HOST} [L,R]
+
+#ErrorDocument 404 /%{ENV:DIGITAL_BASE_NAME}/App/%{ENV:DIGITAL_ROOT_APP}?error=404
